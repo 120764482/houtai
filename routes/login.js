@@ -2,7 +2,7 @@ var express = require('express');
 var router =express.Router();
 var mysql=require('mysql');
 var pool = mysql.createPool({
-	host: '127.0.0.1',
+	host: '192.168.48.238',
 	user: 'root',
 	password: 'lyt108',
 	database: 'xuesheng', //数据库名称
@@ -43,24 +43,24 @@ router.post('/zhuce',function(req,res){
 				}
 				
 			})//注册成功
-//			weiji(id,function(err,result){
-//				if(result.insertId>0){
-//					res.send({flag:1})//注册成功
-//				}
-//				
-//			})//注册成功
-//			yuekao(id,function(err,result){
-//				if(result.insertId>0){
-//					res.send({flag:1})//注册成功
-//				}
-//				
-//			})//注册成功
-//			zhoukao(id,function(err,result){
-//				if(result.insertId>0){
-//					res.send({flag:1})//注册成功
-//				}
-//				
-//			})//注册成功
+			weiji(function(err,result){
+				if(result.insertId>0){
+					res.send({flag:1})//注册成功
+				}
+				
+			})//注册成功
+			yuekao(function(err,result){
+				if(result.insertId>0){
+					res.send({flag:1})//注册成功
+				}
+				
+			})//注册成功
+			zhoukao(function(err,result){
+				if(result.insertId>0){
+					res.send({flag:1})//注册成功
+				}
+				
+			})//注册成功
 		}else if(result!=""||result!=null){
 			res.send({flag:2})//用户名被占用
 		}else{
