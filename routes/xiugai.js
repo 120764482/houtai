@@ -1,7 +1,7 @@
-
 var express = require('express');
+var mysql=require('mysql');
 var router =express.Router();
-var mysql=require('mysql')
+
 var pool = mysql.createPool({
 	host: '127.0.0.1',
 	user: 'root',
@@ -17,7 +17,38 @@ router.all('*', function(req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
-router.post('/add', function(req, res) {
+
+router.get('/xiugai', function(req, res) {
+	var id = req.query.Uid;
+	//console.log(id)
+	findUser(id, function(err, results) {
+		if(err) {
+			res.send(err)
+		} else if(results) {
+			//console.log(">>>"+results);
+			res.send(results);
+		}
+	});
+})
+
+//根据id查询用户
+function findUser(id, callback) {
+	pool.getConnection(function(err, conn) {
+		var sql = 'select * from zhuce where Uid = ?';
+		conn.query(sql, [id], function(err, result) {
+			console.log('result:' + result)
+			if(err) {
+				console.log("getAllUsers Error:" + err.message);
+				return;
+			}
+			conn.release(); //释放连接
+			callback(err, result);
+
+		})
+	})
+}
+
+router.post('/xiugaii', function(req, res) {
 		var name = req.body.Name;
 		var teachername = req.body.teachername;
 		var classnames = req.body.classnames;
@@ -30,7 +61,6 @@ router.post('/add', function(req, res) {
 		var num = req.body.num;
 		var teacherlaoshi = req.body.teacherlaoshi;
 		var sex=req.body.sex;
-		
 		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,function(err, result) {
 			
 			if(err){
@@ -39,23 +69,10 @@ router.post('/add', function(req, res) {
 			return;
 			}
 			
-				if(result) {
+				if(result.changedRows>0) {
 					result={flag:1};
-
-//					weiji(studentUid,function(err,result){
-//						console.log('poiu')
-//						if(err){
-//							console.log('poiuaaa')
-//							res.send(err)
-//						}else if(result){
-//							console.log('poiubbb')
-//							res.send(result)
-//						}
-//					})
-
-console.log('aaa')
-					res.send(result) //添加成功
-						
+					res.send(result) //修改成功
+						console.log('aaa')
 				}else{
 					err={flag:2}
 				}
@@ -63,9 +80,9 @@ console.log('aaa')
 			}) //注册成功
 	})
 	//保存数据
-function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,callback) {
+function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex) {
 	pool.getConnection(function(err, conn) {
-		var sql = 'insert into list (name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex) values (?,?,?,?,?,?,?,?,?,?,?,?)';
+		var sql = 'update zhuce set name=?,teachername=?,classnames=?,cellphone=?,patriarchname=?,patriarccellphone=?,dorm=?,studentUid=?,number=?,teacherlaoshi=?,sex=? where Uid = ?';
 		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex], function(err, result) {
 			if(err) {
 				console.log('insertUser:' + err.message);
@@ -77,20 +94,4 @@ function save(name,teachername,classnames,cellphone,address,patriarchname,patria
 		})
 	})
 }
-//function weiji(studentUid,callback) {
-//	pool.getConnection(function(err, conn) {
-//		var sql = 'insert into weiji (studentUid) values (?)';
-//		conn.query(sql, [studentUid], function(err, result) {
-//			if(err) {
-//				console.log('insertUser:' + err.message);
-//				return;
-//			}
-//			conn.release(); //释放连接
-//			console.log("dasdasdasd")
-//			callback(err, result);
-//		})
-//	})
-//}
-
-
 module.exports=router;

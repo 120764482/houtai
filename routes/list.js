@@ -50,7 +50,7 @@ router.get('/list',function(req,res){
 })
 ////删除
 router.post('/shan',function(req,res){
-	var id=req.query.Uid
+	var id=req.query.id
 	console.log(id)
 	shan(id,function(err,results){
 		if(err){
@@ -89,12 +89,12 @@ router.get('/cha',function(req,res){
 		}
 	})
 })
-//根据id查询用户
-function cha(u, callback) {
+//根据信息查询用户
+function cha(c, callback) {
 	pool.getConnection(function(err, conn) {
-		var sql = 'select * from zhuce where Name like "%" ? "%" or classnames like "%" ? "%" or cellphone like "%" ? "%" or studentUid like "%" ? "%"';
+		var sql = 'select * from list where Name like "%" ? "%" or classnames like "%" ? "%" or cellphone like "%" ? "%" or studentUid like "%" ? "%"';
 		
-		conn.query(sql, [u,u,u,u], function(err, result) {
+		conn.query(sql, [c,c,c,c], function(err, result) {
 			console.log('result:' + result)
 			if(err) {
 				console.log("getAllUsers Error:" + err.message);

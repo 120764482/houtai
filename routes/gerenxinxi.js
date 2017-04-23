@@ -17,14 +17,15 @@ router.all('*', function(req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
-router.xinxi('/xinxi', function(req, res) {
-	var xiang = req.query.xiang;
-	//console.log(id)
-	findUser(xiang, function(err, results) {
+router.get('/xinxi', function(req, res) {
+	var xiang = req.query.Uid;
+	console.log(xiang)
+	xinxi(xiang, function(err, results) {
 		if(err) {
 			res.send(err)
 		} else if(results) {
 			//console.log(">>>"+results);
+			console.log(results)
 			res.send(results);
 		}
 	});
