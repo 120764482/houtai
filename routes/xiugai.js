@@ -34,7 +34,7 @@ router.get('/xiugai', function(req, res) {
 //根据id查询用户
 function findUser(id, callback) {
 	pool.getConnection(function(err, conn) {
-		var sql = 'select * from zhuce where Uid = ?';
+		var sql = 'select * from list where Uid = ?';
 		conn.query(sql, [id], function(err, result) {
 			console.log('result:' + result)
 			if(err) {
@@ -49,6 +49,7 @@ function findUser(id, callback) {
 }
 
 router.post('/xiugaii', function(req, res) {
+		var Uid=req.body.Uid;
 		var name = req.body.Name;
 		var teachername = req.body.teachername;
 		var classnames = req.body.classnames;
@@ -58,10 +59,15 @@ router.post('/xiugaii', function(req, res) {
 		var patriarccellphone= req.body.patriarccellphone;
 		var dorm = req.body.dorm;
 		var studentUid = req.body.studentUid;
-		var num = req.body.num;
+		var number = req.body.number;
 		var teacherlaoshi = req.body.teacherlaoshi;
 		var sex=req.body.sex;
-		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,function(err, result) {
+		var weiji=req.body.weiji;
+		var zhoukao=req.body.zhoukao;
+		var yuekao=req.body.yuekao;
+		var weijifen=req.body.weijifen;
+		console.log(Uid)
+		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,Uid,function(err, result) {
 			
 			if(err){
 				err={flag:3};
@@ -69,7 +75,7 @@ router.post('/xiugaii', function(req, res) {
 			return;
 			}
 			
-				if(result.changedRows>0) {
+				if(result) {
 					result={flag:1};
 					res.send(result) //修改成功
 						console.log('aaa')
@@ -80,16 +86,16 @@ router.post('/xiugaii', function(req, res) {
 			}) //注册成功
 	})
 	//保存数据
-function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex) {
+function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,Uid,callback) {
 	pool.getConnection(function(err, conn) {
-		var sql = 'update zhuce set name=?,teachername=?,classnames=?,cellphone=?,patriarchname=?,patriarccellphone=?,dorm=?,studentUid=?,number=?,teacherlaoshi=?,sex=? where Uid = ?';
-		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex], function(err, result) {
+		var sql = 'update list set name=?,teachername=?,classnames=?,cellphone=?,address=?,patriarchname=?,patriarccellphone=?,dorm=?,studentUid=?,number=?,teacherlaoshi=?,sex=?,weiji=?,zhoukao=?,yuekao=?,weijifen=? where Uid = ?';
+		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,Uid], function(err, result) {
 			if(err) {
 				console.log('insertUser:' + err.message);
 				return;
 			}
 			conn.release(); //释放连接
-			console.log("dasdasdasd")
+			
 			callback(err, result);
 		})
 	})
