@@ -1,5 +1,7 @@
 var express = require('express');
 var mysql=require('mysql');
+var fs=require("fs");
+var formidable=require("formidable");
 var router =express.Router();
 
 var pool = mysql.createPool({
@@ -17,8 +19,35 @@ router.all('*', function(req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
+router.post('/tou', function(req, res) {
 
+	//创建一个connection
+	var form = new formidable.IncomingForm();
+	form.uploadDir = "public/upload/temp/"; //改变临时目录
+	form.parse(req, function(error, fields, files) {
+		for(var i in files) {
+			var file = files[i];
+			var fName = (new Date()).getTime();
+			switch(file.type) {
+				case "image/jpeg":
+					fName = fName + ".jpg";
+					break;
+				case "image/png":
+					fName = fName + ".png";
+					break;
+				
+			}
+			var uploadDir = "./public/upload/temp/" + fName;
+			fs.rename(file.path,uploadDir) 
+			console.log(fName)
+			res.send({fName:fName})
+		}
+		
+	});
+
+});
 router.get('/xiugai', function(req, res) {
+	if(req.session.uname != '' && req.session.password != '') {
 	var id = req.query.Uid;
 	//console.log(id)
 	findUser(id, function(err, results) {
@@ -29,6 +58,9 @@ router.get('/xiugai', function(req, res) {
 			res.send(results);
 		}
 	});
+	}else{
+		res.send({flag:1})
+	}
 })
 
 //根据id查询用户
@@ -66,8 +98,9 @@ router.post('/xiugaii', function(req, res) {
 		var zhoukao=req.body.zhoukao;
 		var yuekao=req.body.yuekao;
 		var weijifen=req.body.weijifen;
+		var img=req.body.img;
 		console.log(Uid)
-		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,Uid,function(err, result) {
+		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,img,Uid,function(err, result) {
 			
 			if(err){
 				err={flag:3};
@@ -86,10 +119,10 @@ router.post('/xiugaii', function(req, res) {
 			}) //注册成功
 	})
 	//保存数据
-function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,Uid,callback) {
+function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,img,Uid,callback) {
 	pool.getConnection(function(err, conn) {
-		var sql = 'update list set name=?,teachername=?,classnames=?,cellphone=?,address=?,patriarchname=?,patriarccellphone=?,dorm=?,studentUid=?,number=?,teacherlaoshi=?,sex=?,weiji=?,zhoukao=?,yuekao=?,weijifen=? where Uid = ?';
-		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,Uid], function(err, result) {
+		var sql = 'update list set name=?,teachername=?,classnames=?,cellphone=?,address=?,patriarchname=?,patriarccellphone=?,dorm=?,studentUid=?,number=?,teacherlaoshi=?,sex=?,weiji=?,zhoukao=?,yuekao=?,weijifen=?,img=? where Uid = ?';
+		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,weiji,zhoukao,yuekao,weijifen,img,Uid], function(err, result) {
 			if(err) {
 				console.log('insertUser:' + err.message);
 				return;

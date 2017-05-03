@@ -1,7 +1,9 @@
 
 var express = require('express');
 var router =express.Router();
-var mysql=require('mysql')
+var mysql=require('mysql');
+var fs=require("fs");
+var formidable=require("formidable");
 var pool = mysql.createPool({
 	host: '127.0.0.1',
 	user: 'root',
@@ -17,7 +19,35 @@ router.all('*', function(req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
+router.post('/tou', function(req, res) {
+
+	//创建一个connection
+	var form = new formidable.IncomingForm();
+	form.uploadDir = "./public/upload/temp/"; //改变临时目录
+	form.parse(req, function(error, fields, files) {
+		for(var i in files) {
+			var file = files[i];
+			var fName = (new Date()).getTime();
+			switch(file.type) {
+				case "image/jpeg":
+					fName = fName + ".jpg";
+					break;
+				case "image/png":
+					fName = fName + ".png";
+					break;
+				
+			}
+			var uploadDir = "./public/upload/temp/" + fName;
+			fs.rename(file.path,uploadDir) 
+			console.log(fName)
+			res.send({fName:fName})
+		}
+		
+	});
+
+});
 router.post('/add', function(req, res) {
+	
 		var name = req.body.Name;
 		var teachername = req.body.teachername;
 		var classnames = req.body.classnames;
@@ -30,8 +60,8 @@ router.post('/add', function(req, res) {
 		var num = req.body.num;
 		var teacherlaoshi = req.body.teacherlaoshi;
 		var sex=req.body.sex;
-		
-		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,function(err, result) {
+		var img=req.body.img;
+		save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,img,function(err, result) {
 			
 			if(err){
 				err={flag:3};
@@ -42,16 +72,6 @@ router.post('/add', function(req, res) {
 				if(result) {
 					result={flag:1};
 
-//					weiji(studentUid,function(err,result){
-//						console.log('poiu')
-//						if(err){
-//							console.log('poiuaaa')
-//							res.send(err)
-//						}else if(result){
-//							console.log('poiubbb')
-//							res.send(result)
-//						}
-//					})
 
 console.log('aaa')
 					res.send(result) //添加成功
@@ -61,12 +81,13 @@ console.log('aaa')
 				}
 
 			}) //注册成功
+		
 	})
 	//保存数据
-function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,callback) {
+function save(name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,img,callback) {
 	pool.getConnection(function(err, conn) {
-		var sql = 'insert into list (name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex) values (?,?,?,?,?,?,?,?,?,?,?,?)';
-		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex], function(err, result) {
+		var sql = 'insert into list (name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,number,teacherlaoshi,sex,img) values (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+		conn.query(sql, [name,teachername,classnames,cellphone,address,patriarchname,patriarccellphone,dorm,studentUid,num,teacherlaoshi,sex,img], function(err, result) {
 			if(err) {
 				console.log('insertUser:' + err.message);
 				return;

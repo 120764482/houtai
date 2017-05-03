@@ -5,6 +5,9 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var fs=require("fs");
+var formidable=require("formidable");
+var session=require("express-session");
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -12,7 +15,9 @@ var login = require('./routes/login');
 var list =require('./routes/list');
 var add =require('./routes/add');
 var xiang=require('./routes/gerenxinxi');
-var gai=require('./routes/xiugai')
+var gai=require('./routes/xiugai');
+var tu=require('./routes/tupian');
+var banji=require('./routes/banji');
 
 var app = express();
 
@@ -27,6 +32,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({secret:'950108',name:'testap2',cookie:{maxAge:80000},resave:false,saveUninitialized:true}));
 
 app.use('/', index);
 app.use('/users', users);
@@ -35,6 +41,8 @@ app.use('/list', list);
 app.use('/add', add);
 app.use('/geren', xiang);
 app.use('/gai', gai);
+app.use('/tu', tu);
+app.use('/banji', banji);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

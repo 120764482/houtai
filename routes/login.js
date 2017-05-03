@@ -1,5 +1,6 @@
 var express = require('express');
 var mysql=require('mysql');
+var session = require("express-session");
 var router =express.Router();
 
 var pool = mysql.createPool({
@@ -31,8 +32,12 @@ router.post('/denglu',function(req,res){
 		if(result.length==0){
 			res.send({flag:2})//用户名不存在
 		}else if(result.length>0){
+			
 			if(pwd==result[0].password){
 				if(quanxian==result[0].jurisdiction){
+					req.session.uname=uname;
+			req.session.password=pwd;
+					console.log(req.session.uname+req.session.password)
 					res.send({flag:1})
 				}else if(quanxian!=result[0].jurisdiction){
 					res.send({flag:5})
